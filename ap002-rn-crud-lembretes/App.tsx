@@ -21,6 +21,8 @@ interface Lembrete {
 export default function App() {
   const [lembrete, setLembrete] = useState<string>("");
   const [lembretes, setLembretes] = useState<Lembrete[]>([]);
+  const [emEdicao, setEmEdicao] = useState(false);
+  const [idEditando, setIdEditando] = useState<string>("");
 
   const adicionar = () => {
     if (lembrete.length > 0) {
@@ -31,6 +33,23 @@ export default function App() {
       setLembretes((listaAtual) => [novoLembrete, ...listaAtual]);
       setLembrete("");
     }
+  };
+
+  const editar = (lembreteAEditar: Lembrete) => {
+    setLembrete(lembreteAEditar.texto);
+    setIdEditando(lembreteAEditar.id);
+
+    setEmEdicao(true);
+  };
+  const atualizar = () => {
+    setLembretes((listaAtual) =>
+      listaAtual.map((l) =>
+        l.id === idEditando ? { ...l, texto: lembrete } : l
+      )
+    );
+
+    setLembrete("");
+    setEmEdicao(false);
   };
   const remover = (lembreteARemover: Lembrete) => {
     // Alert.alert(
@@ -50,10 +69,12 @@ export default function App() {
     //         })
     //       }
     //     }
-    //   ]      
+    //   ]
     // )
-    setLembretes(lembretesAtual => (lembretesAtual.filter(l => l.id !== lembreteARemover.id)))
-  }
+    setLembretes((lembretesAtual) =>
+      lembretesAtual.filter((l) => l.id !== lembreteARemover.id)
+    );
+  };
   return (
     <View style={styles.container}>
       <TextInput
@@ -63,13 +84,20 @@ export default function App() {
         placeholder="Digite um lembrete..."
       />
       <Pressable
-        onPress={() => {
-          adicionar();
-        }}
         style={styles.button}
+        onPress={() => {
+          if (emEdicao) {
+            atualizar();
+          } else {
+            adicionar();
+          }
+        }}
       >
-        <Text style={styles.buttonText}>Salvar lembrete</Text>
+        <Text style={styles.buttonText}>
+          {emEdicao ? "Atualizar lembrete" : "Salvar lembrete"}
+        </Text>
       </Pressable>
+
       <FlatList
         style={styles.list}
         keyExtractor={(l) => l.id}
@@ -82,7 +110,7 @@ export default function App() {
                 <Pressable onPress={() => remover(l.item)}>
                   <AntIcon name="delete" size={24} color="black" />
                 </Pressable>
-                <Pressable>
+                <Pressable onPress={() => editar(l.item)}>
                   <AntIcon name="edit" size={24} color="black" />
                 </Pressable>
               </View>
@@ -102,7 +130,23 @@ export default function App() {
             Linking.openURL("https://github.com/eduardomoraghi-creator")
           }
         >
-          <AntIcon name="github" size={24} />
+          <AntIcon name="github" size={20} />
+        </Pressable>
+
+        <Pressable
+          onPress={() =>
+            Linking.openURL("https://linkedin.com/in/eduardo-moraghi-08928b281")
+          }
+        >
+          <AntIcon name="linkedin" size={20} />
+        </Pressable>
+        
+        <Pressable
+          onPress={() =>
+            Linking.openURL("https://instagram.com/ee_dd_uu_aa_rr_dd_oo")
+          }
+        >
+          <AntIcon name="instagram" size={20} />
         </Pressable>
       </View>
     </View>
@@ -166,9 +210,10 @@ const styles = StyleSheet.create({
     borderColor: "#DDD",
     borderWidth: 1,
     width: "80%",
-    alignItems: "center",
     padding: 12,
     marginTop: 8,
     borderRadius: 4,
+    flexDirection: "row",
+    justifyContent: "space-evenly",
   },
 });
